@@ -1,10 +1,8 @@
 package com.shxhzhxx.residelayout
 
 import android.content.Context
-import android.os.SystemClock.elapsedRealtime
 import android.util.AttributeSet
 import android.util.DisplayMetrics
-import android.util.Log
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
@@ -59,7 +57,6 @@ class ResideLayout @JvmOverloads constructor(
         dyUnconsumed: Int,
         type: Int
     ) {
-        Log.d(javaClass.simpleName, "onNestedScroll:$dxUnconsumed   $type")
         if (type == TYPE_TOUCH)
             setViewTransition(slideView.translationX - dxUnconsumed)
         else if (!scroller.computeScrollOffset())
@@ -123,9 +120,7 @@ class ResideLayout @JvmOverloads constructor(
         }
 
         override fun onSingleTapUp(e: MotionEvent): Boolean {
-            return (slideView.translationX != 0f).also {
-                if (it) closePane()
-            }
+            return (isOpen).also { if (it) closePane() }
         }
 
         override fun onScroll(e1: MotionEvent?, e2: MotionEvent?, distanceX: Float, distanceY: Float): Boolean {
@@ -153,6 +148,8 @@ class ResideLayout @JvmOverloads constructor(
         if (isEnabled) settle(minFlingVelocity)
     }
 
+    val isOpen get() = slideView.translationX != 0f
+
     override fun onTouchEvent(ev: MotionEvent): Boolean {
         if (!isEnabled)
             return false
@@ -175,7 +172,7 @@ class ResideLayout @JvmOverloads constructor(
             return false
         if (isBeingDragged)
             return true
-        if (slideView.translationX != 0f && checkArea(ev))
+        if (isOpen && checkArea(ev))
             return true
         if (super.onInterceptTouchEvent(ev))
             return true
@@ -202,7 +199,12 @@ class ResideLayout @JvmOverloads constructor(
         postInvalidateOnAnimation(this)
     }
 
+    var onOpenListener: (() -> Unit)? = null
+    var onCloseListener: (() -> Unit)? = null
+
     private fun setViewTransition(transition: Float) {
+        if (slideView.translationX == 0f && transition > 0f) onOpenListener?.invoke()
+        if (slideView.translationX > 0f && transition == 0f) onCloseListener?.invoke()
         slideView.translationX = middle(0f, maxTransition, transition)
         slideView.scaleX = 1 - (1 - resideScale) * slideView.translationX / maxTransition
         slideView.scaleY = slideView.scaleX
