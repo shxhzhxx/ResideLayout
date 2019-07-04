@@ -3,6 +3,7 @@ package com.shxhzhxx.residelayout
 import android.content.Context
 import android.util.AttributeSet
 import android.util.DisplayMetrics
+import android.util.Log
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
@@ -35,10 +36,10 @@ class ResideLayout @JvmOverloads constructor(
     init {
         val dm = resources.displayMetrics
         context.theme.obtainStyledAttributes(attrs, R.styleable.ResideLayout, 0, 0).use {
-            minFlingVelocity = it.getDimension(R.styleable.ResideLayout_minFlingVelocity, dm.dpToPx(50f))
+            minFlingVelocity = it.getDimension(R.styleable.ResideLayout_minFlingVelocity, dm.dpToPx(200f))
             minDragVelocity = it.getDimension(R.styleable.ResideLayout_minDragVelocity, dm.dpToPx(50f))
             maxDuration = it.getInteger(R.styleable.ResideLayout_maxDuration, 600)
-            dragAngleTolerance = it.getFloat(R.styleable.ResideLayout_dragAngleTolerance, 30f)
+            dragAngleTolerance = it.getFloat(R.styleable.ResideLayout_dragAngleTolerance, 15f)
             residePercentage = it.getFloat(R.styleable.ResideLayout_residePercentage, 0.6f)
             resideScale = it.getFloat(R.styleable.ResideLayout_resideScale, 0.6f)
             resideElevation = it.getDimension(R.styleable.ResideLayout_resideElevation, dm.dpToPx(8f))
@@ -115,7 +116,7 @@ class ResideLayout @JvmOverloads constructor(
     private val minDragVelocityRatio by lazy { minDragVelocity / 60 }
     private val detector = GestureDetector(context, object : GestureDetector.SimpleOnGestureListener() {
         override fun onFling(e1: MotionEvent?, e2: MotionEvent?, velocityX: Float, velocityY: Float): Boolean {
-            settle(velocityX)
+            if (abs(velocityX) * dragAngleToleranceRatio < abs(velocityY)) settle(0f) else settle(velocityX)
             return true
         }
 
