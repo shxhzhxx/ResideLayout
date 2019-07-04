@@ -139,6 +139,7 @@ class ResideLayout @JvmOverloads constructor(
         }
     })
     private val slideView by lazy { getChildAt(1) }
+    private val backView by lazy { getChildAt(0) }
 
     fun closePane() {
         if (isEnabled) settle(-minFlingVelocity)
@@ -205,9 +206,11 @@ class ResideLayout @JvmOverloads constructor(
     private fun setViewTransition(transition: Float) {
         if (slideView.translationX == 0f && transition > 0f) onOpenListener?.invoke()
         if (slideView.translationX > 0f && transition == 0f) onCloseListener?.invoke()
+        val offset = slideView.translationX / maxTransition
+        backView.alpha = offset
         slideView.translationX = middle(0f, maxTransition, transition)
-        slideView.scaleX = 1 - (1 - resideScale) * slideView.translationX / maxTransition
+        slideView.scaleX = 1 - (1 - resideScale) * offset
         slideView.scaleY = slideView.scaleX
-        setElevation(slideView, slideView.translationX / maxTransition * resideElevation)
+        setElevation(slideView, offset * resideElevation)
     }
 }
