@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="ResideLayout">
+        <attr name="maxDuration" format="integer" />
+        <attr name="minFlingVelocity" format="dimension" />
+        <attr name="residePercentage" format="float" />
+        <attr name="resideScale" format="float"/>
+        <attr name="resideElevation" format="dimension"/>
+        <attr name="minDragVelocity" format="dimension"/>
+        <attr name="dragAngleTolerance" format="float"/>
+    </declare-styleable>
+</resources>
